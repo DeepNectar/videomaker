@@ -204,7 +204,7 @@ export default function SlideshowPreview({
 
   if (totalSlides === 0) {
     return (
-      <div className="w-full aspect-video bg-gradient-to-br from-pink-950/50 via-purple-950/50 to-rose-950/50 rounded-2xl flex items-center justify-center border border-pink-800/30">
+      <div className="w-full aspect-[9/16] max-h-[80vh] mx-auto bg-gradient-to-br from-pink-950/50 via-purple-950/50 to-rose-950/50 rounded-2xl flex items-center justify-center border border-pink-800/30">
         <div className="text-center">
           <motion.div
             animate={{ rotate: 360 }}
@@ -228,7 +228,7 @@ export default function SlideshowPreview({
     <div className="w-full">
       {/* Preview Area */}
       <div
-        className="relative w-full aspect-video rounded-2xl overflow-hidden border border-pink-800/30 shadow-2xl shadow-pink-500/10"
+        className="relative w-full aspect-[9/16] max-h-[80vh] mx-auto rounded-2xl overflow-hidden border border-pink-800/30 shadow-2xl shadow-pink-500/10"
         style={{
           background: `radial-gradient(ellipse at center, ${settings.backgroundColor} 0%, #0a0010 100%)`,
         }}

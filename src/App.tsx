@@ -228,7 +228,7 @@ export default function App() {
                       <Eye className="h-4 w-4 text-pink-400" />
                       Quick Preview
                     </h4>
-                    <div className="aspect-video rounded-xl overflow-hidden">
+                    <div className="aspect-[9/16] max-h-[70vh] mx-auto rounded-xl overflow-hidden">
                       <SlideshowPreview items={mediaItems} settings={settings} />
                     </div>
                   </div>

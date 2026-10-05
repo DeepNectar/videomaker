@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, GripVertical, Image, Film } from 'lucide-react';
+import { Trash2, GripVertical, Image, Film, Heart } from 'lucide-react';
 import { MediaItem } from '../hooks/useMediaManager';
 
 interface MediaGalleryProps {
@@ -11,9 +11,18 @@ interface MediaGalleryProps {
 export default function MediaGallery({ items, onRemove }: MediaGalleryProps) {
   if (items.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
-        <p className="text-lg">No media uploaded yet</p>
-        <p className="text-sm mt-2">Upload photos and videos to get started</p>
+      <div className="text-center py-12">
+        <motion.div
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 3, repeat: Infinity }}
+          className="inline-block mb-4"
+        >
+          <Heart className="h-12 w-12 text-pink-400/30" fill="currentColor" />
+        </motion.div>
+        <p className="text-pink-200/50 text-lg">No memories uploaded yet</p>
+        <p className="text-pink-300/30 text-sm mt-2">
+          Upload your photos and videos to create something beautiful 💕
+        </p>
       </div>
     );
   }
@@ -21,8 +30,9 @@ export default function MediaGallery({ items, onRemove }: MediaGalleryProps) {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-white font-semibold text-lg">
-          Media Gallery ({items.length} items)
+        <h3 className="text-white font-semibold text-lg flex items-center gap-2">
+          <Heart className="h-5 w-5 text-pink-400" fill="currentColor" />
+          Your Memories ({items.length})
         </h3>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
@@ -35,8 +45,8 @@ export default function MediaGallery({ items, onRemove }: MediaGalleryProps) {
               animate={{ opacity: 1, scale: 1, rotateY: 0 }}
               exit={{ opacity: 0, scale: 0.8, rotateY: 90 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
-              whileHover={{ scale: 1.05, rotateZ: 2 }}
-              className="relative group rounded-xl overflow-hidden bg-gray-800 aspect-square"
+              whileHover={{ scale: 1.05, rotateZ: 1 }}
+              className="relative group rounded-xl overflow-hidden bg-gray-800 aspect-square border border-pink-800/20"
             >
               {item.type === 'image' ? (
                 <img
@@ -66,13 +76,13 @@ export default function MediaGallery({ items, onRemove }: MediaGalleryProps) {
 
               {/* Type badge */}
               <div className="absolute top-2 left-2">
-                <span className="flex items-center gap-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
+                <span className="flex items-center gap-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">
                   {item.type === 'image' ? (
                     <Image className="h-3 w-3" />
                   ) : (
                     <Film className="h-3 w-3" />
                   )}
-                  {item.type === 'image' ? 'IMG' : 'VID'}
+                  {item.type === 'image' ? '📷' : '🎬'}
                 </span>
               </div>
 
@@ -84,7 +94,7 @@ export default function MediaGallery({ items, onRemove }: MediaGalleryProps) {
                   e.stopPropagation();
                   onRemove(item.id);
                 }}
-                className="absolute top-2 right-2 p-1.5 bg-red-500/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-2 right-2 p-1.5 bg-rose-500/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
               >
                 <Trash2 className="h-3 w-3" />
               </motion.button>
@@ -96,7 +106,7 @@ export default function MediaGallery({ items, onRemove }: MediaGalleryProps) {
 
               {/* Order number */}
               <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="bg-purple-500/80 text-white text-xs px-1.5 py-0.5 rounded">
+                <span className="bg-pink-500/80 text-white text-xs px-1.5 py-0.5 rounded backdrop-blur-sm">
                   #{index + 1}
                 </span>
               </div>

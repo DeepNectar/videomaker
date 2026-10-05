@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, Image, Film } from 'lucide-react';
+import { Upload, Image, Film, Heart } from 'lucide-react';
 
 interface MediaUploaderProps {
   onUpload: (files: FileList) => void;
@@ -53,12 +53,12 @@ export default function MediaUploader({ onUpload }: MediaUploaderProps) {
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
         className={`
-          relative cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center
-          transition-all duration-300 ease-out
+          relative cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center
+          transition-all duration-300 ease-out overflow-hidden
           ${
             isDragging
-              ? 'border-purple-400 bg-purple-500/10 scale-[1.02] shadow-lg shadow-purple-500/20'
-              : 'border-gray-600 bg-gray-800/50 hover:border-purple-400/50 hover:bg-gray-800/70'
+              ? 'border-pink-400 bg-pink-500/10 scale-[1.02] shadow-lg shadow-pink-500/20'
+              : 'border-pink-800/40 bg-gradient-to-br from-pink-950/20 via-purple-950/20 to-rose-950/20 hover:border-pink-400/50 hover:from-pink-950/30'
           }
         `}
       >
@@ -66,14 +66,30 @@ export default function MediaUploader({ onUpload }: MediaUploaderProps) {
           animate={isDragging ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
           transition={{ type: 'spring', stiffness: 300 }}
         >
-          <Upload className="mx-auto h-12 w-12 text-purple-400 mb-4" />
+          <motion.div
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            className="inline-block mb-4"
+          >
+            <div className="relative">
+              <Upload className="h-12 w-12 text-pink-400" />
+              <motion.div
+                className="absolute -top-1 -right-1"
+                animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Heart className="h-4 w-4 text-pink-400" fill="currentColor" />
+              </motion.div>
+            </div>
+          </motion.div>
+
           <h3 className="text-lg font-semibold text-white mb-2">
-            Drop your photos & videos here
+            Upload Your Precious Memories
           </h3>
-          <p className="text-gray-400 text-sm mb-4">
-            or click to browse files
+          <p className="text-pink-200/50 text-sm mb-4">
+            Drop photos & videos here to create a romantic slideshow ✨
           </p>
-          <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
+          <div className="flex items-center justify-center gap-4 text-xs text-pink-300/40">
             <span className="flex items-center gap-1">
               <Image className="h-4 w-4" /> JPG, PNG, GIF, WEBP
             </span>
@@ -92,17 +108,35 @@ export default function MediaUploader({ onUpload }: MediaUploaderProps) {
           className="hidden"
         />
 
-        {/* Decorative rotating elements */}
+        {/* Romantic decorative elements */}
         <motion.div
-          className="absolute -top-2 -right-2 h-4 w-4 rounded-full bg-purple-500/30"
+          className="absolute -top-2 -right-2"
           animate={{ rotate: 360, scale: [1, 1.3, 1] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-        />
-        <motion.div
-          className="absolute -bottom-2 -left-2 h-3 w-3 rounded-full bg-blue-500/30"
-          animate={{ rotate: -360, scale: [1, 1.5, 1] }}
           transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-        />
+        >
+          <Heart className="h-4 w-4 text-pink-500/20" fill="currentColor" />
+        </motion.div>
+        <motion.div
+          className="absolute -bottom-2 -left-2"
+          animate={{ rotate: -360, scale: [1, 1.5, 1] }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+        >
+          <Heart className="h-3 w-3 text-purple-500/20" fill="currentColor" />
+        </motion.div>
+        <motion.div
+          className="absolute top-4 left-8"
+          animate={{ y: [0, -10, 0], opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          <div className="h-2 w-2 rounded-full bg-pink-400/20" />
+        </motion.div>
+        <motion.div
+          className="absolute bottom-4 right-8"
+          animate={{ y: [0, 10, 0], opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 4, repeat: Infinity }}
+        >
+          <div className="h-2 w-2 rounded-full bg-purple-400/20" />
+        </motion.div>
       </div>
     </motion.div>
   );

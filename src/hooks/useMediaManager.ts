@@ -9,24 +9,67 @@ export interface MediaItem {
   duration?: number;
 }
 
-export type EffectType = 'rotate3d' | 'zoom-rotate' | 'carousel' | 'flip' | 'spiral' | 'wave';
+export type RomanticEffect =
+  | 'dreamy-zoom'
+  | 'soft-rotate'
+  | 'heart-pulse'
+  | 'gentle-drift'
+  | 'rose-fade'
+  | 'silk-flow'
+  | 'starlight'
+  | 'whisper'
+  | 'embrace'
+  | 'moonlight';
+
+export const ROMANTIC_EFFECTS: RomanticEffect[] = [
+  'dreamy-zoom',
+  'soft-rotate',
+  'heart-pulse',
+  'gentle-drift',
+  'rose-fade',
+  'silk-flow',
+  'starlight',
+  'whisper',
+  'embrace',
+  'moonlight',
+];
+
+export const ROMANTIC_EFFECT_META: Record<
+  RomanticEffect,
+  { label: string; icon: string; description: string }
+> = {
+  'dreamy-zoom': { label: 'Dreamy Zoom', icon: '💫', description: 'Soft zoom with dreamy blur' },
+  'soft-rotate': { label: 'Soft Rotate', icon: '🌸', description: 'Gentle elegant rotation' },
+  'heart-pulse': { label: 'Heart Pulse', icon: '💗', description: 'Romantic heartbeat scale' },
+  'gentle-drift': { label: 'Gentle Drift', icon: '🕊️', description: 'Floating like a feather' },
+  'rose-fade': { label: 'Rose Fade', icon: '🌹', description: 'Fade with rose-like grace' },
+  'silk-flow': { label: 'Silk Flow', icon: '🎀', description: 'Smooth silk-like wave' },
+  starlight: { label: 'Starlight', icon: '✨', description: 'Sparkling star entrance' },
+  whisper: { label: 'Whisper', icon: '💭', description: 'Soft whispering fade' },
+  embrace: { label: 'Embrace', icon: '🤍', description: 'Warm zoom-in embrace' },
+  moonlight: { label: 'Moonlight', icon: '🌙', description: 'Slow moonlit pan' },
+};
 
 export interface SlideshowSettings {
-  effect: EffectType;
-  slideDuration: number; // in seconds
-  transitionDuration: number; // in seconds
+  randomEffects: boolean;
+  fixedEffect: RomanticEffect;
+  slideDuration: number;
+  transitionDuration: number;
   backgroundColor: string;
   musicEnabled: boolean;
+  romanticParticles: boolean;
 }
 
 export function useMediaManager() {
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [settings, setSettings] = useState<SlideshowSettings>({
-    effect: 'rotate3d',
+    randomEffects: true,
+    fixedEffect: 'dreamy-zoom',
     slideDuration: 3,
-    transitionDuration: 1,
-    backgroundColor: '#0f0f23',
+    transitionDuration: 1.2,
+    backgroundColor: '#1a0a1e',
     musicEnabled: false,
+    romanticParticles: true,
   });
 
   const addMedia = useCallback((files: FileList | File[]) => {

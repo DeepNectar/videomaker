@@ -8,7 +8,7 @@ import {
   Download,
   Trash2,
   Sparkles,
-  RotateCw,
+  Heart,
 } from 'lucide-react';
 import { useMediaManager } from './hooks/useMediaManager';
 import MediaUploader from './components/MediaUploader';
@@ -32,60 +32,95 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-purple-950 text-white">
-      {/* Animated background */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-rose-950/30 to-purple-950/40 text-white">
+      {/* Romantic animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(25)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 rounded-full bg-purple-500/20"
+            className="absolute"
             style={{
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
             }}
             animate={{
-              y: [0, -100, 0],
-              x: [0, Math.sin(i) * 50, 0],
-              opacity: [0, 0.5, 0],
-              scale: [0, 2, 0],
+              y: [0, -150, 0],
+              x: [0, Math.sin(i) * 40, 0],
+              opacity: [0, 0.4, 0],
+              scale: [0.5, 1.5, 0.5],
+              rotate: [0, 360],
             }}
             transition={{
-              duration: 5 + Math.random() * 5,
+              duration: 6 + Math.random() * 8,
               repeat: Infinity,
               delay: Math.random() * 5,
             }}
-          />
+          >
+            {i % 4 === 0 ? (
+              <Heart className="w-3 h-3 text-pink-400/30" fill="currentColor" />
+            ) : i % 4 === 1 ? (
+              <Sparkles className="w-3 h-3 text-yellow-300/20" />
+            ) : (
+              <div className="w-1.5 h-1.5 rounded-full bg-purple-400/20" />
+            )}
+          </motion.div>
         ))}
+
+        {/* Large ambient glow */}
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(236,72,153,0.05) 0%, transparent 70%)',
+          }}
+          animate={{
+            scale: [1, 1.3, 1],
+            x: [0, 50, 0],
+            y: [0, -30, 0],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(168,85,247,0.05) 0%, transparent 70%)',
+          }}
+          animate={{
+            scale: [1.2, 1, 1.2],
+            x: [0, -40, 0],
+            y: [0, 40, 0],
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        />
       </div>
 
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 border-b border-gray-800/50 backdrop-blur-xl bg-gray-900/30"
+        className="relative z-10 border-b border-pink-800/20 backdrop-blur-xl bg-gray-900/30"
       >
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <motion.div
               animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+              transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
               className="relative"
             >
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                <Film className="h-5 w-5 text-white" />
+              <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-pink-500 via-rose-500 to-purple-500 flex items-center justify-center shadow-lg shadow-pink-500/30">
+                <Heart className="h-5 w-5 text-white" fill="currentColor" />
               </div>
               <motion.div
-                className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-pink-500"
-                animate={{ scale: [1, 1.3, 1] }}
+                className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-pink-400"
+                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
             </motion.div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                Rotating Slideshow Creator
+              <h1 className="text-xl font-bold bg-gradient-to-r from-pink-300 via-rose-300 to-purple-300 bg-clip-text text-transparent">
+                Romantic Slideshow Creator
               </h1>
-              <p className="text-xs text-gray-400">
-                Create stunning videos with rotating effects
+              <p className="text-xs text-pink-300/50">
+                Create dreamy videos with random romantic effects ✨
               </p>
             </div>
           </div>
@@ -98,16 +133,16 @@ export default function App() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={clearAll}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-sm"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-all text-sm border border-rose-500/20"
               >
                 <Trash2 className="h-4 w-4" />
                 Clear All
               </motion.button>
             )}
-            <div className="flex items-center gap-1 bg-gray-800/50 rounded-lg px-3 py-2">
-              <Sparkles className="h-4 w-4 text-purple-400" />
-              <span className="text-sm text-gray-300">
-                {mediaItems.length} media
+            <div className="flex items-center gap-1.5 bg-pink-500/10 rounded-lg px-3 py-2 border border-pink-500/20">
+              <Heart className="h-4 w-4 text-pink-400" fill="currentColor" />
+              <span className="text-sm text-pink-200">
+                {mediaItems.length} {mediaItems.length === 1 ? 'memory' : 'memories'}
               </span>
             </div>
           </div>
@@ -126,8 +161,8 @@ export default function App() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm whitespace-nowrap transition-all ${
                 activeTab === tab.id
-                  ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg shadow-purple-500/20'
-                  : 'bg-gray-800/50 text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg shadow-pink-500/20'
+                  : 'bg-gray-800/50 text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-700/50'
               }`}
             >
               {tab.icon}
@@ -164,12 +199,12 @@ export default function App() {
             {activeTab === 'preview' && (
               <div className="space-y-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <RotateCw className="h-5 w-5 text-purple-400" />
+                  <Heart className="h-5 w-5 text-pink-400" fill="currentColor" />
                   <h2 className="text-xl font-bold text-white">
-                    Slideshow Preview
+                    Romantic Preview
                   </h2>
-                  <span className="text-sm text-gray-400 ml-2">
-                    Effect: {settings.effect}
+                  <span className="text-sm text-pink-300/70 ml-2">
+                    {settings.randomEffects ? '✨ Random romantic effects' : `💗 ${settings.fixedEffect}`}
                   </span>
                 </div>
                 <SlideshowPreview items={mediaItems} settings={settings} />
@@ -188,8 +223,11 @@ export default function App() {
 
                 {/* Quick preview */}
                 {mediaItems.length > 0 && (
-                  <div className="bg-gray-800/30 rounded-2xl p-4 border border-gray-700/50">
-                    <h4 className="text-white font-medium mb-3">Quick Preview</h4>
+                  <div className="bg-pink-500/5 rounded-2xl p-4 border border-pink-800/20">
+                    <h4 className="text-white font-medium mb-3 flex items-center gap-2">
+                      <Eye className="h-4 w-4 text-pink-400" />
+                      Quick Preview
+                    </h4>
                     <div className="aspect-video rounded-xl overflow-hidden">
                       <SlideshowPreview items={mediaItems} settings={settings} />
                     </div>
@@ -207,14 +245,14 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
           >
-            <div className="flex items-center gap-2 bg-gray-900/90 backdrop-blur-xl border border-gray-700 rounded-2xl p-2 shadow-2xl">
+            <div className="flex items-center gap-2 bg-gray-900/90 backdrop-blur-xl border border-pink-800/30 rounded-2xl p-2 shadow-2xl shadow-pink-500/10">
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setActiveTab('upload')}
                 className={`p-3 rounded-xl ${
                   activeTab === 'upload'
-                    ? 'bg-purple-500 text-white'
+                    ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'
                     : 'text-gray-400 hover:text-white'
                 }`}
                 title="Upload"
@@ -227,7 +265,7 @@ export default function App() {
                 onClick={() => setActiveTab('preview')}
                 className={`p-3 rounded-xl ${
                   activeTab === 'preview'
-                    ? 'bg-purple-500 text-white'
+                    ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'
                     : 'text-gray-400 hover:text-white'
                 }`}
                 title="Preview"
@@ -240,10 +278,10 @@ export default function App() {
                 onClick={() => setActiveTab('settings')}
                 className={`p-3 rounded-xl ${
                   activeTab === 'settings'
-                    ? 'bg-purple-500 text-white'
+                    ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'
                     : 'text-gray-400 hover:text-white'
                 }`}
-                title="Settings"
+                title="Effects"
               >
                 <Settings className="h-5 w-5" />
               </motion.button>
@@ -253,7 +291,7 @@ export default function App() {
                 onClick={() => setActiveTab('export')}
                 className={`p-3 rounded-xl ${
                   activeTab === 'export'
-                    ? 'bg-purple-500 text-white'
+                    ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'
                     : 'text-gray-400 hover:text-white'
                 }`}
                 title="Export"
@@ -266,10 +304,12 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-gray-800/50 mt-12">
-        <div className="max-w-7xl mx-auto px-4 py-6 text-center text-gray-500 text-sm">
-          <p>
-            ✨ Rotating Slideshow Creator — Upload, Animate, Export ✨
+      <footer className="relative z-10 border-t border-pink-800/20 mt-12">
+        <div className="max-w-7xl mx-auto px-4 py-6 text-center">
+          <p className="text-pink-300/40 text-sm flex items-center justify-center gap-2">
+            <Heart className="h-4 w-4 text-pink-400/60" fill="currentColor" />
+            Romantic Slideshow Creator — Upload, Animate, Export with Love
+            <Heart className="h-4 w-4 text-pink-400/60" fill="currentColor" />
           </p>
         </div>
       </footer>

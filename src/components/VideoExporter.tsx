@@ -25,14 +25,12 @@ const generateEffectMap = (count: number, random: boolean, fixed: RomanticEffect
   return effects;
 };
 
-// Get supported MIME type for MediaRecorder
 const getSupportedMimeType = (): string => {
   const types = [
     'video/webm;codecs=vp9,opus',
     'video/webm;codecs=vp9',
     'video/webm;codecs=vp8',
     'video/webm',
-    'video/mp4',
   ];
   
   for (const type of types) {
@@ -41,7 +39,7 @@ const getSupportedMimeType = (): string => {
     }
   }
   
-  return 'video/webm'; // fallback
+  return 'video/webm';
 };
 
 export default function VideoExporter({ items, settings }: VideoExporterProps) {
@@ -60,7 +58,24 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
     setError(null);
 
     try {
-      // Portrait phone resolution (9:16 aspect ratio)
+      // Step 1: Pre-load all images
+      setCurrentEffectName('Loading images...');
+      const imageCache = new Map<string, HTMLImageElement>();
+      
+      for (const item of items) {
+        if (item.type === 'image') {
+          const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const image = new Image();
+            image.crossOrigin = 'anonymous';
+            image.onload = () => resolve(image);
+            image.onerror = () => reject(new Error(`Failed to load: ${item.name}`));
+            image.src = item.url;
+          });
+          imageCache.set(item.id, img);
+        }
+      }
+
+      // Step 2: Create canvas and recorder
       const canvas = document.createElement('canvas');
       canvas.width = 720;
       canvas.height = 1280;
@@ -70,12 +85,13 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
         throw new Error('Could not create canvas context');
       }
 
-      const stream = canvas.captureStream(24); // Reduced to 24fps for faster export
+      const fps = 24;
+      const stream = canvas.captureStream(fps);
       const mimeType = getSupportedMimeType();
       
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType,
-        videoBitsPerSecond: 2000000, // Slightly lower bitrate for faster processing
+        videoBitsPerSecond: 2000000,
       });
 
       const chunks: Blob[] = [];
@@ -87,21 +103,10 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
       };
 
       const effectMap = generateEffectMap(items.length, settings.randomEffects, settings.fixedEffect);
-      const fps = 24;
       const totalFrames = items.length * settings.slideDuration * fps;
       const framesPerSlide = settings.slideDuration * fps;
       const transitionFrames = Math.floor(settings.transitionDuration * fps);
       let currentFrame = 0;
-
-      const loadImage = (src: string): Promise<HTMLImageElement> => {
-        return new Promise((resolve, reject) => {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          img.onload = () => resolve(img);
-          img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
-          img.src = src;
-        });
-      };
 
       const applyEffect = (
         effect: RomanticEffect,
@@ -177,7 +182,7 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
         }
       };
 
-      const drawFrame = async (slideIndex: number, frame: number) => {
+      const drawFrame = (slideIndex: number, frame: number) => {
         const item = items[slideIndex];
         const effect = effectMap[slideIndex];
 
@@ -217,9 +222,10 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
           ctx.filter = 'none';
         }
 
-        try {
-          if (item.type === 'image') {
-            const img = await loadImage(item.url);
+        // Draw media
+        if (item.type === 'image') {
+          const img = imageCache.get(item.id);
+          if (img) {
             const aspectRatio = img.width / img.height;
             const canvasAspect = canvas.width / canvas.height;
             let drawWidth: number, drawHeight: number;
@@ -233,34 +239,9 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
             }
 
             ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
-          } else {
-            const video = document.createElement('video');
-            video.src = item.url;
-            video.muted = true;
-            await new Promise<void>((resolve) => {
-              video.onloadeddata = () => {
-                video.currentTime = 0;
-                resolve();
-              };
-              video.load();
-            });
-
-            const aspectRatio = video.videoWidth / video.videoHeight;
-            const canvasAspect = canvas.width / canvas.height;
-            let drawWidth: number, drawHeight: number;
-
-            if (aspectRatio > canvasAspect) {
-              drawWidth = canvas.width * 0.85;
-              drawHeight = drawWidth / aspectRatio;
-            } else {
-              drawHeight = canvas.height * 0.85;
-              drawWidth = drawHeight * aspectRatio;
-            }
-
-            ctx.drawImage(video, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
           }
-        } catch (err) {
-          console.error('Error drawing media:', err);
+        } else {
+          // For videos, draw placeholder
           ctx.fillStyle = '#333';
           ctx.fillRect(-200, -150, 400, 300);
           ctx.fillStyle = '#fff';
@@ -312,47 +293,53 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       };
 
-      // Wait for recorder to start
-      await new Promise<void>((resolve) => {
-        mediaRecorder.onstart = () => resolve();
-        mediaRecorder.start();
-      });
+      // Step 3: Start recording
+      mediaRecorder.start();
+      
+      // Wait for recorder to be ready
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Render all frames
+      // Step 4: Render frames with proper timing
+      const frameInterval = 1000 / fps; // Time per frame in ms
+      
       for (let slideIndex = 0; slideIndex < items.length; slideIndex++) {
         const effect = effectMap[slideIndex];
         setCurrentEffectName(ROMANTIC_EFFECT_META[effect].label);
 
         for (let frame = 0; frame < framesPerSlide; frame++) {
-          await drawFrame(slideIndex, frame);
+          drawFrame(slideIndex, frame);
           currentFrame++;
-          // Update progress every 10 frames to reduce UI updates
-          if (frame % 10 === 0) {
+          
+          // Update progress every 5 frames
+          if (frame % 5 === 0) {
             setProgress(Math.round((currentFrame / totalFrames) * 100));
           }
-          // Minimal delay to allow MediaRecorder to capture frames
-          await new Promise((r) => setTimeout(r, 5));
+          
+          // Wait for proper frame timing
+          await new Promise((resolve) => setTimeout(resolve, frameInterval));
         }
       }
 
-      // Stop recorder and wait for data
+      // Step 5: Stop recording and wait for data
+      mediaRecorder.stop();
+      
+      // Wait for recording to finish
       await new Promise<void>((resolve) => {
         mediaRecorder.onstop = () => resolve();
-        mediaRecorder.stop();
       });
 
-      // Wait a bit for all data to be collected
-      await new Promise((r) => setTimeout(r, 500));
+      // Additional wait to ensure all data is collected
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
-      // Create blob and download
+      // Step 6: Create and download video
       if (chunks.length === 0) {
-        throw new Error('No video data was recorded');
+        throw new Error('No video data was recorded. Please try again.');
       }
 
       const blob = new Blob(chunks, { type: mimeType });
       
       if (blob.size === 0) {
-        throw new Error('Video blob is empty');
+        throw new Error('Video file is empty. Please try again.');
       }
 
       // Create download link
@@ -366,18 +353,18 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
       // Trigger download
       a.click();
       
-      // Cleanup
+      // Cleanup after a delay
       setTimeout(() => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-      }, 100);
+      }, 1000);
 
       setIsComplete(true);
       setIsExporting(false);
       
     } catch (err) {
       console.error('Export error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to export video');
+      setError(err instanceof Error ? err.message : 'Failed to export video. Please try again.');
       setIsExporting(false);
     }
   }, [items, settings]);
@@ -429,7 +416,7 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
                 <p className="font-medium">Export Error</p>
                 <p className="text-xs mt-1">{error}</p>
                 <p className="text-xs mt-2 text-gray-400">
-                  Tip: Try using a different browser (Chrome/Edge recommended) or check if your browser supports video recording.
+                  Tip: Make sure you're using Chrome, Edge, or Firefox browser.
                 </p>
               </div>
             </motion.div>
@@ -440,7 +427,7 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
               <div className="flex items-center justify-between text-sm mb-2">
                 <span className="text-pink-300 flex items-center gap-2">
                   <Heart className="h-4 w-4 animate-pulse" fill="currentColor" />
-                  Creating magic... {currentEffectName && `• ${currentEffectName}`}
+                  {currentEffectName || 'Creating magic...'}
                 </span>
                 <span className="text-pink-400 font-medium">{progress}%</span>
               </div>

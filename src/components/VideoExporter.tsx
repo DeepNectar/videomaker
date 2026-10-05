@@ -70,12 +70,12 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
         throw new Error('Could not create canvas context');
       }
 
-      const stream = canvas.captureStream(30);
+      const stream = canvas.captureStream(24); // Reduced to 24fps for faster export
       const mimeType = getSupportedMimeType();
       
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType,
-        videoBitsPerSecond: 2500000,
+        videoBitsPerSecond: 2000000, // Slightly lower bitrate for faster processing
       });
 
       const chunks: Blob[] = [];
@@ -87,9 +87,10 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
       };
 
       const effectMap = generateEffectMap(items.length, settings.randomEffects, settings.fixedEffect);
-      const totalFrames = items.length * settings.slideDuration * 30;
-      const framesPerSlide = settings.slideDuration * 30;
-      const transitionFrames = Math.floor(settings.transitionDuration * 30);
+      const fps = 24;
+      const totalFrames = items.length * settings.slideDuration * fps;
+      const framesPerSlide = settings.slideDuration * fps;
+      const transitionFrames = Math.floor(settings.transitionDuration * fps);
       let currentFrame = 0;
 
       const loadImage = (src: string): Promise<HTMLImageElement> => {
@@ -325,8 +326,12 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
         for (let frame = 0; frame < framesPerSlide; frame++) {
           await drawFrame(slideIndex, frame);
           currentFrame++;
-          setProgress(Math.round((currentFrame / totalFrames) * 100));
-          await new Promise((r) => setTimeout(r, 33));
+          // Update progress every 10 frames to reduce UI updates
+          if (frame % 10 === 0) {
+            setProgress(Math.round((currentFrame / totalFrames) * 100));
+          }
+          // Minimal delay to allow MediaRecorder to capture frames
+          await new Promise((r) => setTimeout(r, 5));
         }
       }
 
@@ -404,11 +409,13 @@ export default function VideoExporter({ items, settings }: VideoExporterProps) {
           <div className="text-gray-400 text-sm mb-4 space-y-1">
             <p>📱 Format: Portrait (Phone Resolution)</p>
             <p>📐 Resolution: 720×1280 (9:16)</p>
+            <p>🎬 Video Format: <span className="text-pink-300 font-semibold">WebM</span> (VP9 codec)</p>
             <p>⏱️ Duration: ~{items.length * settings.slideDuration}s</p>
             <p>
               ✨ Effects: {settings.randomEffects ? 'Random romantic (different each slide!)' : ROMANTIC_EFFECT_META[settings.fixedEffect].label}
             </p>
             <p>💫 Particles: {settings.romanticParticles ? 'Hearts, stars & sparkles' : 'Disabled'}</p>
+            <p className="text-xs text-gray-500 mt-2">⚡ Optimized for faster export (24fps)</p>
           </div>
 
           {error && (
